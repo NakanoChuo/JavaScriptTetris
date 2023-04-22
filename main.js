@@ -15,7 +15,7 @@ class Tetris {
         }
 
         this.blocks = [//yeahaammmm(つのだ☆ひろ_ダイヤモンド☆ユカイ)mmmmmmaaaaaaaneko:)
-            // Oミノ
+            //Oミノ
             {
                 shape: [
                     [0, 0], [0, 1], [1, 0], [1, 1]
@@ -27,16 +27,34 @@ class Tetris {
                     [0, 0], [0, 1], [0, 2], [0, 3]
                 ]
             },
-            // Tミノ
+            //Tミノ
             {
                 shape: [
                     [0, 0], [1, 0], [2, 0], [1, 1]
                 ]
             },
+            //Zミノ
+            {
+                shape: [
+                    [0, 0], [1, 0], [1, 1], [2, 1]
+                ]
+            },
             //Sミノ
             {
                 shape: [
-                    [0, 0], [0, 1], [1, 0], [1, 1]
+                    [0, 1], [1, 1], [1, 0], [2, 0]
+                ]
+            },
+            //Jミノ
+            {
+                shape: [
+                    [1, 3], [2, 3], [2, 2], [2, 1]
+                ]
+            },
+            //Lミノ
+            {
+                shape: [
+                    [0, 0], [0, 1], [0, 2], [1, 2]
                 ]
             },
         ];
@@ -75,6 +93,22 @@ class Tetris {
         }
     }
 
+    rotate(shape, center) {
+        shape = shape.map(element => [
+            element[0] - center[0],
+            element[1] - center[1]
+        ]);
+        shape = shape.map(element => [
+            -element[1],
+            element[0]
+        ]);
+        shape = shape.map(element => [
+            element[0] + center[0],
+            element[1] + center[1]
+        ]);
+        return shape;
+    }
+
     deleteLines() {
         let deleteFlags = new Array(this.heightCellCount);
         for (let y = 0; y < this.heightCellCount; y++) {
@@ -105,6 +139,7 @@ class Tetris {
     keydown(event) {
         switch (event.key) {
             case 'ArrowUp':
+                this.blocks[4].shape = this.rotate(this.blocks[4].shape, [0.5, 0.5]);
                 break;
             case 'ArrowDown':
                 this.moveDown();
@@ -121,8 +156,8 @@ class Tetris {
     moveDown() {
         if (
             !this.isLanding
-            && this.stage[this.blockX + this.blocks[0].shape[1][0]][this.blockY + this.blocks[0].shape[1][1] + 1] != 1
-            && this.stage[this.blockX + this.blocks[0].shape[3][0]][this.blockY + this.blocks[0].shape[3][1] + 1] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[1][0]][this.blockY + this.blocks[4].shape[1][1] + 1] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[3][0]][this.blockY + this.blocks[4].shape[3][1] + 1] != 1
         ) {
             this.blockY++;
         }
@@ -133,8 +168,8 @@ class Tetris {
     moveRight() {
         if (
             !this.isLanding
-            && this.stage[this.blockX + this.blocks[0].shape[2][0] + 1][this.blockY + this.blocks[0].shape[2][1]] != 1
-            && this.stage[this.blockX + this.blocks[0].shape[3][0] + 1][this.blockY + this.blocks[0].shape[3][1]] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[2][0] + 1][this.blockY + this.blocks[4].shape[2][1]] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[3][0] + 1][this.blockY + this.blocks[4].shape[3][1]] != 1
         ) {
             this.blockX++;
         }
@@ -145,8 +180,8 @@ class Tetris {
     moveLeft() {
         if (
             !this.isLanding
-            && this.stage[this.blockX + this.blocks[0].shape[0][0] - 1][this.blockY + this.blocks[0].shape[0][1]] != 1
-            && this.stage[this.blockX + this.blocks[0].shape[1][0] - 1][this.blockY + this.blocks[0].shape[1][1]] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[0][0] - 1][this.blockY + this.blocks[4].shape[0][1]] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[1][0] - 1][this.blockY + this.blocks[4].shape[1][1]] != 1
         ) {
             this.blockX--;
         }
@@ -161,15 +196,15 @@ class Tetris {
         if (this.stage[this.blockX][this.blockY + 2/* めり込みに対してのとりあえずの処理、後で修正 */] == 1) {
             this.isGameOver = true;
         }
-        this.blockType = 0;                         // ブロックの種類（後で乱数化する）
+        this.blockType = 4;                         // ブロックの種類（後で乱数化する）
         this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
     }
 
     fall() {
         if (
             !this.isLanding
-            && this.stage[this.blockX + this.blocks[0].shape[1][0]][this.blockY + this.blocks[0].shape[1][1] + 1] != 1
-            && this.stage[this.blockX + this.blocks[0].shape[3][0]][this.blockY + this.blocks[0].shape[3][1] + 1] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[1][0]][this.blockY + this.blocks[4].shape[1][1] + 1] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[3][0]][this.blockY + this.blocks[4].shape[3][1] + 1] != 1
         ) {
             this.blockY++;
         }
@@ -189,8 +224,8 @@ class Tetris {
     isMovable() {
         if (
             !this.isLanding
-            && this.stage[this.blockX + this.blocks[0].shape[1][0]][this.blockY + this.blocks[0].shape[1][1] + 1] != 1
-            && this.stage[this.blockX + this.blocks[0].shape[3][0]][this.blockY + this.blocks[0].shape[3][1] + 1] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[1][0]][this.blockY + this.blocks[4].shape[1][1] + 1] != 1
+            && this.stage[this.blockX + this.blocks[4].shape[3][0]][this.blockY + this.blocks[4].shape[3][1] + 1] != 1
         ) {
             return true;
         } else {
@@ -242,21 +277,3 @@ class Tetris {
         }
     }
 }
-
-// this.blockX  動かしているブロックの左上のX座標
-// this.blockY  動かしているブロックの左上のY座標
-// this.stage   10x20の2次元配列
-//              1が入っていたらブロックが埋まっている
-//              例. if (this.stage[2][3] == 1)
-//                  ↑ 座標(2, 3)にブロックがあるかどうかの判定
-// this.blocks[0].shape
-//              ブロックの形を定義した座標
-        //  this.blocks = [
-        //     {
-        //         shape: [
-        //             X座標, Y座標の順
-        //             [0, 0], [0, 1], [1, 0], [1, 1]
-        //             左上,   左下,    右上,   右下
-        //         ]
-        //     }
-        // ];
