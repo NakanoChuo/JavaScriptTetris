@@ -79,7 +79,6 @@ class Tetris {
         } else {
             this.fall();        // ブロックを一つ落とす
         }
-        this.checkIsLanding();
         if (this.isGameOver) {
             document.getElementById('gameover').innerHTML = 'GAME OVER';
             clearInterval(this.intervalId);
@@ -139,7 +138,12 @@ class Tetris {
     keydown(event) {
         switch (event.key) {
             case 'ArrowUp':
-                this.blocks[4].shape = this.rotate(this.blocks[4].shape, [0.5, 0.5]);
+                this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, [0.5, 0.5]);
+                if (this.isCollided(this.blockType)) {
+                    for (let i = 0; i < 2; i++) {
+                        this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, [0.5, 0.5]);
+                    }
+                }
                 break;
             case 'ArrowDown':
                 this.moveDown();
@@ -154,36 +158,24 @@ class Tetris {
     }
 
     moveDown() {
-        if (
-            !this.isLanding
-            && this.stage[this.blockX + this.blocks[4].shape[1][0]][this.blockY + this.blocks[4].shape[1][1] + 1] != 1
-            && this.stage[this.blockX + this.blocks[4].shape[3][0]][this.blockY + this.blocks[4].shape[3][1] + 1] != 1
-        ) {
-            this.blockY++;
-        }
+        this.fall()
         this.clearStage();
         this.drawBlock();
     }
 
     moveRight() {
-        if (
-            !this.isLanding
-            && this.stage[this.blockX + this.blocks[4].shape[2][0] + 1][this.blockY + this.blocks[4].shape[2][1]] != 1
-            && this.stage[this.blockX + this.blocks[4].shape[3][0] + 1][this.blockY + this.blocks[4].shape[3][1]] != 1
-        ) {
-            this.blockX++;
+        this.blockX++;
+        if (this.isCollided(this.blockType)) {
+            this.blockX--;
         }
         this.clearStage();
         this.drawBlock();
     }
 
     moveLeft() {
-        if (
-            !this.isLanding
-            && this.stage[this.blockX + this.blocks[4].shape[0][0] - 1][this.blockY + this.blocks[4].shape[0][1]] != 1
-            && this.stage[this.blockX + this.blocks[4].shape[1][0] - 1][this.blockY + this.blocks[4].shape[1][1]] != 1
-        ) {
-            this.blockX--;
+        this.blockX--;
+        if (this.isCollided(this.blockType)) {
+            this.blockX++;
         }
         this.clearStage();
         this.drawBlock();
@@ -201,36 +193,27 @@ class Tetris {
     }
 
     fall() {
-        if (
-            !this.isLanding
-            && this.stage[this.blockX + this.blocks[4].shape[1][0]][this.blockY + this.blocks[4].shape[1][1] + 1] != 1
-            && this.stage[this.blockX + this.blocks[4].shape[3][0]][this.blockY + this.blocks[4].shape[3][1] + 1] != 1
-        ) {
-            this.blockY++;
-        }
-    }
-
-    checkIsLanding() {
-        if (
-            this.blockY == this.heightCellCount - 2 /* めり込みに対してのとりあえずの処理、後で修正 */
-            || !this.isMovable()
-        ) {
+        this.blockY++;
+        if (this.isCollided(this.blockType)) {
+            this.blockY--;
             this.isLanding = true;
-        } else {
-            this.isLanding = false;
         }
+        this.clearStage();
+        this.drawBlock();
     }
 
-    isMovable() {
-        if (
-            !this.isLanding
-            && this.stage[this.blockX + this.blocks[4].shape[1][0]][this.blockY + this.blocks[4].shape[1][1] + 1] != 1
-            && this.stage[this.blockX + this.blocks[4].shape[3][0]][this.blockY + this.blocks[4].shape[3][1] + 1] != 1
-        ) {
-            return true;
-        } else {
-            return false;
+    isCollided(minoType) {
+        for (let i = 0; i < this.blocks[minoType].shape.length; i++) {
+            if (
+                this.blockX + this.blocks[minoType].shape[i][0] < 0
+                || this.blockX + this.blocks[minoType].shape[i][0] >= this.widthCellCount
+                || this.blockY + this.blocks[minoType].shape[i][1] >= this.heightCellCount
+                || this.stage[this.blockX + this.blocks[minoType].shape[i][0]][this.blockY + this.blocks[minoType].shape[i][1]] == 1
+            ) {
+                return true;
+            }
         }
+        return false;
     }
 
     clearStage() {
