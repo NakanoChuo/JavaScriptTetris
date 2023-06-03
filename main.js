@@ -19,43 +19,50 @@ class Tetris {
             {
                 shape: [
                     [0, 0], [0, 1], [1, 0], [1, 1]
-                ]
+                ],
+                center: [0.5, 0.5]
             },
             //Iミノ
             {
                 shape: [
                     [0, 0], [0, 1], [0, 2], [0, 3]
-                ]
+                ],
+                center: [0.5, 1.5]
             },
             //Tミノ
             {
                 shape: [
                     [0, 0], [1, 0], [2, 0], [1, 1]
-                ]
+                ],
+                center: [0.5, 0.5]
             },
             //Zミノ
             {
                 shape: [
                     [0, 0], [1, 0], [1, 1], [2, 1]
-                ]
+                ],
+                center: [0.5, 0.5]
             },
             //Sミノ
             {
                 shape: [
                     [0, 1], [1, 1], [1, 0], [2, 0]
-                ]
+                ],
+                center: [0.5, 0.5]
             },
             //Jミノ
             {
                 shape: [
                     [1, 3], [2, 3], [2, 2], [2, 1]
-                ]
+                ],
+                center: [1.5, 1.5]
             },
             //Lミノ
             {
                 shape: [
                     [0, 0], [0, 1], [0, 2], [1, 2]
-                ]
+                ],
+                center: [0.5, 0.5]
             },
         ];
 
@@ -138,12 +145,14 @@ class Tetris {
     keydown(event) {
         switch (event.key) {
             case 'ArrowUp':
-                this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, [0.5, 0.5]);
+                this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, this.blocks[this.blockType].center);
                 if (this.isCollided(this.blockType)) {
                     for (let i = 0; i < 2; i++) {
-                        this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, [0.5, 0.5]);
+                        this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, this.blocks[this.blockType].center);
                     }
                 }
+                this.clearStage();
+                this.drawBlock();
                 break;
             case 'ArrowDown':
                 this.moveDown();
@@ -188,7 +197,7 @@ class Tetris {
         if (this.stage[this.blockX][this.blockY + 2/* めり込みに対してのとりあえずの処理、後で修正 */] == 1) {
             this.isGameOver = true;
         }
-        this.blockType = 4;                         // ブロックの種類（後で乱数化する）
+        this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
         this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
     }
 
