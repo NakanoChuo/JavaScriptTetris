@@ -20,49 +20,56 @@ class Tetris {
                 shape: [
                     [0, 0], [0, 1], [1, 0], [1, 1]
                 ],
-                center: [0.5, 0.5]
+                center: [0.5, 0.5],
+                color: 'rgb(255, 255, 0)',
             },
             //Iミノ
             {
                 shape: [
                     [0, 0], [0, 1], [0, 2], [0, 3]
                 ],
-                center: [0.5, 1.5]
+                center: [0.5, 1.5],
+                color: 'rgb(0, 255, 255)',
             },
             //Tミノ
             {
                 shape: [
                     [0, 0], [1, 0], [2, 0], [1, 1]
                 ],
-                center: [0.5, 0.5]
+                center: [0.5, 0.5],
+                color: 'rgb(255, 0, 255)',
             },
             //Zミノ
             {
                 shape: [
                     [0, 0], [1, 0], [1, 1], [2, 1]
                 ],
-                center: [0.5, 0.5]
+                center: [0.5, 0.5],
+                color: 'rgb(255, 0, 0)',
             },
             //Sミノ
             {
                 shape: [
                     [0, 1], [1, 1], [1, 0], [2, 0]
                 ],
-                center: [0.5, 0.5]
+                center: [0.5, 0.5],
+                color: 'rgb(0, 255, 0)',
             },
             //Jミノ
             {
                 shape: [
                     [1, 3], [2, 3], [2, 2], [2, 1]
                 ],
-                center: [1.5, 1.5]
+                center: [1.5, 1.5],
+                color: 'rgb(0, 0, 255)',
             },
             //Lミノ
             {
                 shape: [
                     [0, 0], [0, 1], [0, 2], [1, 2]
                 ],
-                center: [0.5, 0.5]
+                center: [0.5, 0.5],
+                color: 'rgb(255, 165, 0)',
             },
         ];
 
@@ -121,7 +128,7 @@ class Tetris {
             // 第y行が埋まっているか判定
             let x;
             for (x = 0; x < this.widthCellCount; x++) {
-                if (this.stage[x][y] != 1) {
+                if (this.stage[x][y] === null) {
                     // 次の行に進む
                     break;
                 }
@@ -194,7 +201,7 @@ class Tetris {
         // ブロックの初期設定
         this.blockX = this.widthCellCount / 2 - 1;  // X座標
         this.blockY = -1;                            // Y座標
-        if (this.stage[this.blockX][this.blockY + 2/* めり込みに対してのとりあえずの処理、後で修正 */] == 1) {
+        if (this.stage[this.blockX][this.blockY + 2/* めり込みに対してのとりあえずの処理、後で修正 */] !== null) {
             this.isGameOver = true;
         }
         this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
@@ -217,7 +224,7 @@ class Tetris {
                 this.blockX + this.blocks[minoType].shape[i][0] < 0
                 || this.blockX + this.blocks[minoType].shape[i][0] >= this.widthCellCount
                 || this.blockY + this.blocks[minoType].shape[i][1] >= this.heightCellCount
-                || this.stage[this.blockX + this.blocks[minoType].shape[i][0]][this.blockY + this.blocks[minoType].shape[i][1]] == 1
+                || this.stage[this.blockX + this.blocks[minoType].shape[i][0]][this.blockY + this.blocks[minoType].shape[i][1]] !== null
             ) {
                 return true;
             }
@@ -240,15 +247,15 @@ class Tetris {
             for (let i = 0; i < blockShape.length; i++) {
                 let displacementX = blockShape[i][0];
                 let displacementY = blockShape[i][1];
-                this.drawCell(canvas, this.blockX + displacementX, this.blockY + displacementY, 'rgb(255, 255, 255');
+                this.drawCell(canvas, this.blockX + displacementX, this.blockY + displacementY, this.blocks[this.blockType].color);
             }
         } else {
             // 引数を指定したときの処理
             for (let x = 0; x < this.widthCellCount; x++) {
                 for (let y = 0; y < this.heightCellCount; y++) {
                     if (this.stage[x][y] !== null) {
-                        this.drawCell(canvas, x, y, 'rgb(255, 0, 0)');
-                    }        
+                        this.drawCell(canvas, x, y, this.blocks[this.stage[x][y]].color);
+                    }
                 }
             }
         }
@@ -265,7 +272,7 @@ class Tetris {
         for (let i = 0; i < blockShape.length; i++) {
             let displacementX = blockShape[i][0];
             let displacementY = blockShape[i][1];
-            this.stage[this.blockX + displacementX][this.blockY + displacementY] = 1;
+            this.stage[this.blockX + displacementX][this.blockY + displacementY] = this.blockType;
         }
     }
 }
