@@ -200,11 +200,11 @@ class Tetris {
     createBlock() {
         // ブロックの初期設定
         this.blockX = this.widthCellCount / 2 - 1;  // X座標
-        this.blockY = -1;                            // Y座標
-        if (this.stage[this.blockX][this.blockY + 2/* めり込みに対してのとりあえずの処理、後で修正 */] !== null) {
+        this.blockY = -2;                            // Y座標
+        this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
+        if (this.isCollided(this.blockType)) {
             this.isGameOver = true;
         }
-        this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
         this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
     }
 
@@ -220,6 +220,9 @@ class Tetris {
 
     isCollided(minoType) {
         for (let i = 0; i < this.blocks[minoType].shape.length; i++) {
+            if (this.blockY + this.blocks[minoType].shape[i][1] < 0) {
+                continue;
+            }
             if (
                 this.blockX + this.blocks[minoType].shape[i][0] < 0
                 || this.blockX + this.blocks[minoType].shape[i][0] >= this.widthCellCount
