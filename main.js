@@ -154,7 +154,7 @@ class Tetris {
             case 'ArrowUp':
                 this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, this.blocks[this.blockType].center);
                 if (this.isCollided(this.blockType)) {
-                    for (let i = 0; i < 2; i++) {
+                    for (let i = 0; i < 3; i++) {
                         this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, this.blocks[this.blockType].center);
                     }
                 }
