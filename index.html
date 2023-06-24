@@ -10,7 +10,6 @@
   <body>
     <h1>テトリス風ゲーム</h1>
     <h2 id="gameover"></h2>
-    <button id="fall-button" onclick="tetris.onClick();">デバッグ用</button>
     <div class="wrapper-container">
         <span class="tetris-container">
             <canvas id="stage" width="250px" height="500px" style="background-color:black;">
@@ -22,18 +21,6 @@
               <p>LINES:<span id="lines">0</span></p>
               <p><span id="message"></span></p>
               <div class="tetris-panel-container-padding"></div>
-              <table class="tetris-button-panel">
-                <tr>
-                  <td></td>
-                  <td id="tetris-rotate-button" class="tetris-button">↻</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td id="tetris-move-left-button"class="tetris-button">←</td>
-                  <td id="tetris-fall-button"class="tetris-button">↓</td>
-                  <td id="tetris-move-right-button"class="tetris-button">→</td>
-                </tr>
-              </table>
             </span>
         </span>
     </div>
