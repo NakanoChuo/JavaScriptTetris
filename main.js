@@ -80,6 +80,7 @@ class Tetris {
     }
 
     gamestart() {
+        this.deleteLineCount = 0;
         this.hasActiveBlock = false;
         this.isLanding = false;
         this.isGameOver = false;
@@ -102,7 +103,8 @@ class Tetris {
         if (this.isLanding) {   // ブロックが着地したとき
             this.hasActiveBlock = false;
             this.fixBlock(); // ブロックを固定する（配列を保存する）
-            this.deleteLines();
+            this.deleteLineCount += this.deleteLines();
+            document.getElementById('lines').innerHTML = this.deleteLineCount;
         }
     }
 
@@ -124,6 +126,7 @@ class Tetris {
 
     deleteLines() {
         let deleteFlags = new Array(this.heightCellCount);
+        let deleteLineCount = 0;
         for (let y = 0; y < this.heightCellCount; y++) {
             // 第y行が埋まっているか判定
             let x;
@@ -143,10 +146,12 @@ class Tetris {
                     for (let updateY = y; updateY > 0; updateY--) {
                         this.stage[x][updateY] = this.stage[x][updateY - 1];
                     }
-                    this.stage[x][0] = null;   // 一番上の行を消す                    
+                    this.stage[x][0] = null;   // 一番上の行を消す
                 }
+                deleteLineCount++;
             }
         }
+        return deleteLineCount;
     }
 
     keydown(event) {
