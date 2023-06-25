@@ -100,6 +100,9 @@ class Tetris {
         }
         this.clearStage();  // 画面を消す
         this.drawBlock();   // ブロックの描画
+        //▽next描画用　2023/06/25追加　tak-4649
+        this.drawNextBlock();
+        //△next描画用　2023/06/25追加　tak-4649
         if (this.isLanding) {   // ブロックが着地したとき
             this.hasActiveBlock = false;
             this.fixBlock(); // ブロックを固定する（配列を保存する）
@@ -206,7 +209,14 @@ class Tetris {
         // ブロックの初期設定
         this.blockX = this.widthCellCount / 2 - 1;  // X座標
         this.blockY = -2;                            // Y座標
-        this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
+        //▽next描画用　2023/06/25追加　tak-4649
+        if(this.nextblockType === undefined){
+            this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
+        }else{
+            this.blockType = this.nextblockType;
+        }
+        this.nextblockType = Math.floor(Math.random() * this.blocks.length); 
+        //△next描画用　2023/06/25追加　tak-4649
         if (this.isCollided(this.blockType)) {
             this.isGameOver = true;
         }
@@ -268,6 +278,20 @@ class Tetris {
             }
         }
     }
+
+    //▽next描画用　2023/06/25追加　tak-4649
+    drawNextBlock(){
+        const canvas = document.getElementById('next');
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        var blockShape = this.blocks[this.nextblockType].shape;
+        for (let i = 0; i < blockShape.length; i++) {
+            let displacementX = blockShape[i][0];
+            let displacementY = blockShape[i][1];
+            this.drawCell(canvas, 0 + displacementX, 0 + displacementY, this.blocks[this.nextblockType].color);
+         }
+    }
+    //△next描画用　2023/06/25追加　tak-4649
 
     drawCell(canvas, x, y, rgb) {
         const context = canvas.getContext('2d');
