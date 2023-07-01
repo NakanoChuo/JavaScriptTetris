@@ -160,10 +160,10 @@ class Tetris {
     keydown(event) {
         switch (event.key) {
             case 'ArrowUp':
-                this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, this.blocks[this.blockType].center);
+                this.copyblocks = this.rotate(this.copyblocks, this.blocks[this.blockType].center);
                 if (this.isCollided(this.blockType)) {
                     for (let i = 0; i < 3; i++) {
-                        this.blocks[this.blockType].shape = this.rotate(this.blocks[this.blockType].shape, this.blocks[this.blockType].center);
+                        this.copyblocks = this.rotate(this.copyblocks, this.blocks[this.blockType].center);
                     }
                 }
                 this.clearStage();
@@ -217,10 +217,22 @@ class Tetris {
         }
         this.nextblockType = Math.floor(Math.random() * this.blocks.length); 
         //△next描画用　2023/06/25追加　tak-4649
+        this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
+
+        //コピー先の配列を作る（shape数分の大きさにする,1次元配列）
+        this.copyblocks = new Array(this.blocks[this.blockType].shape.length);
+        //要素の[x, y]の数だけ新しい配列を作って2次元配列にする
+        for(let i = 0; i < this.copyblocks.length; i++) {
+            //空の2次元配列
+            this.copyblocks[i] = new Array(this.blocks[this.blockType].shape[i].length);
+            //コピーする
+            for(let j = 0; j < this.copyblocks[i].length ; j++) {
+                this.copyblocks[i][j] = this.blocks[this.blockType].shape[i][j];
+            };
+        };
         if (this.isCollided(this.blockType)) {
             this.isGameOver = true;
         }
-        this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
     }
 
     fall() {
@@ -234,15 +246,15 @@ class Tetris {
     }
 
     isCollided(minoType) {
-        for (let i = 0; i < this.blocks[minoType].shape.length; i++) {
-            if (this.blockY + this.blocks[minoType].shape[i][1] < 0) {
+        for (let i = 0; i < this.copyblocks.length; i++) {
+            if (this.blockY + this.copyblocks[i][1] < 0) {
                 continue;
             }
             if (
-                this.blockX + this.blocks[minoType].shape[i][0] < 0
-                || this.blockX + this.blocks[minoType].shape[i][0] >= this.widthCellCount
-                || this.blockY + this.blocks[minoType].shape[i][1] >= this.heightCellCount
-                || this.stage[this.blockX + this.blocks[minoType].shape[i][0]][this.blockY + this.blocks[minoType].shape[i][1]] !== null
+                this.blockX + this.copyblocks[i][0] < 0
+                || this.blockX + this.copyblocks[i][0] >= this.widthCellCount
+                || this.blockY + this.copyblocks[i][1] >= this.heightCellCount
+                || this.stage[this.blockX + this.copyblocks[i][0]][this.blockY + this.copyblocks[i][1]] !== null
             ) {
                 return true;
             }
@@ -261,7 +273,7 @@ class Tetris {
         const canvas = document.getElementById('stage');
         if (stage === undefined) {
             // 引数なしの時の処理
-            var blockShape = this.blocks[this.blockType].shape;
+            var blockShape = this.copyblocks;
             for (let i = 0; i < blockShape.length; i++) {
                 let displacementX = blockShape[i][0];
                 let displacementY = blockShape[i][1];
@@ -300,7 +312,7 @@ class Tetris {
     }
 
     fixBlock() {
-        var blockShape = this.blocks[this.blockType].shape;
+        var blockShape = this.copyblocks;
         for (let i = 0; i < blockShape.length; i++) {
             let displacementX = blockShape[i][0];
             let displacementY = blockShape[i][1];
