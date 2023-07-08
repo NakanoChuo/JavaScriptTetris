@@ -14,6 +14,8 @@ class Tetris {
             this.stage[i] = new Array(this.heightCellCount).fill(null);
         }
 
+        //▽next描画用　2023/07/01修正　tak-4649
+        this.nextBlockCount = 4;
         this.blocks = [//yeahaammmm(つのだ☆ひろ_ダイヤモンド☆ユカイ)mmmmmmaaaaaaaneko:)
             //Oミノ
             {
@@ -26,9 +28,9 @@ class Tetris {
             //Iミノ
             {
                 shape: [
-                    [0, 0], [0, 1], [0, 2], [0, 3]
+                    [0, 1], [1, 1], [2, 1], [3, 1]
                 ],
-                center: [0.5, 1.5],
+                center: [1.5, 0.5],
                 color: 'rgb(0, 255, 255)',
             },
             //Tミノ
@@ -58,20 +60,21 @@ class Tetris {
             //Jミノ
             {
                 shape: [
-                    [1, 3], [2, 3], [2, 2], [2, 1]
+                    [0, 0], [0, 1], [1, 1], [2, 1]
                 ],
-                center: [1.5, 1.5],
+                center: [1.0, 1.0],
                 color: 'rgb(0, 0, 255)',
             },
             //Lミノ
             {
                 shape: [
-                    [0, 0], [0, 1], [0, 2], [1, 2]
+                    [0,1], [0, 0], [1, 0], [2, 0]
                 ],
-                center: [0.5, 0.5],
+                center: [1.0, 1.0],
                 color: 'rgb(255, 165, 0)',
             },
         ];
+        //△next描画用　2023/07/01修正　tak-4649
 
         this.fallSpeed = 500;
         this.count = 0;
@@ -212,10 +215,17 @@ class Tetris {
         //▽next描画用　2023/06/25追加　tak-4649
         if(this.nextblockType === undefined){
             this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
+            this.nextblockType = new Array(this.nextBlockCount);
+            for (let i = 0; i < this.nextBlockCount; i++){
+                this.nextblockType[i] = Math.floor(Math.random() * this.blocks.length);
+            }
         }else{
-            this.blockType = this.nextblockType;
-        }
-        this.nextblockType = Math.floor(Math.random() * this.blocks.length); 
+            this.blockType = this.nextblockType[0];
+            for (let i = 0; i < this.nextBlockCount - 1; i++){
+                this.nextblockType[i] = this.nextblockType[i + 1];
+            }
+            this.nextblockType[this.nextBlockCount - 1] = Math.floor(Math.random() * this.blocks.length);
+        }        
         //△next描画用　2023/06/25追加　tak-4649
         this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
 
@@ -230,9 +240,12 @@ class Tetris {
                 this.copyblocks[i][j] = this.blocks[this.blockType].shape[i][j];
             };
         };
+        this.blockY++
         if (this.isCollided(this.blockType)) {
             this.isGameOver = true;
         }
+        this.blockY--
+        this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
     }
 
     fall() {
@@ -291,19 +304,21 @@ class Tetris {
         }
     }
 
-    //▽next描画用　2023/06/25追加　tak-4649
+    //▽next描画用　2023/07/01修正　tak-4649
     drawNextBlock(){
         const canvas = document.getElementById('next');
         const context = canvas.getContext('2d');
         context.clearRect(0, 0, canvas.width, canvas.height);
-        var blockShape = this.blocks[this.nextblockType].shape;
-        for (let i = 0; i < blockShape.length; i++) {
-            let displacementX = blockShape[i][0];
-            let displacementY = blockShape[i][1];
-            this.drawCell(canvas, 0 + displacementX, 0 + displacementY, this.blocks[this.nextblockType].color);
-         }
+        for (let i = 0; i < this.nextblockType.length; i++ ){
+            var blockShape = this.blocks[this.nextblockType[i]].shape;
+            for (let j = 0; j < blockShape.length; j++) {
+                let displacementX = blockShape[j][0];
+                let displacementY = blockShape[j][1];
+                this.drawCell(canvas,1 + displacementX, 1 + i * 3 + displacementY, this.blocks[this.nextblockType[i]].color);
+            }
+        }
     }
-    //△next描画用　2023/06/25追加　tak-4649
+    //△next描画用　2023/07/01修正　tak-4649
 
     drawCell(canvas, x, y, rgb) {
         const context = canvas.getContext('2d');
