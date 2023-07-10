@@ -5,23 +5,39 @@
     <title>テトリス風ゲーム</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <!--<link rel="stylesheet" type="text/css" href="css/tetris.css">-->
+    <style>
+      .wrapper-container{
+        display: flex;
+        justify-content: space-between; 
+      }
+      .wrapper-container .tetris-container{
+        width: 100%;
+      }
+
+    </style>
     <script type="text/javascript" src="main.js"></script>
   </head>
+
   <body>
     <h1>テトリス風ゲーム</h1>
     <h2 id="gameover"></h2>
     <div class="wrapper-container">
         <span class="tetris-container">
-            <canvas id="stage" width="250px" height="500px" style="background-color:black;">
+          <p>Stage:</p>
+          <canvas id="stage" width="250px" height="500px" style="background-color:black;">
+          </canvas>
+        </span>
+        <span class="tetris-container">
+          <p>Hold:</p>
+          <canvas id="hold" width="125px" height="100px" style="background-color:black;">
+          </canvas>
+          <p>Next:</p>
+            <canvas id="next" width="125px" height="325px" style="background-color:black;">
             </canvas>
-            <span class="tetris-panel-container">
-              <p>Next:</p>
-                <canvas id="next" width="125px" height="325px" style="background-color:black;">
-                </canvas>
-              <p>LINES:<span id="lines">0</span></p>
-              <p><span id="message"></span></p>
-              <div class="tetris-panel-container-padding"></div>
-            </span>
+        </span>
+        <span class="tetris-container">
+          <p>LINES:<span id="lines">0</span></p>
+          <p><span id="message"></span></p>
         </span>
     </div>
     <script>

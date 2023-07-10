@@ -87,6 +87,9 @@ class Tetris {
         this.hasActiveBlock = false;
         this.isLanding = false;
         this.isGameOver = false;
+        //▽hold描画用　2023/07/08作成　tak-4649
+        this.hasHoldBlock = false;
+        //△hold描画用　2023/07/08作成　tak-4649
         this.intervalId = setInterval(this.mainloop.bind(this), this.fallSpeed);
     }
 
@@ -101,8 +104,8 @@ class Tetris {
             document.getElementById('gameover').innerHTML = 'GAME OVER';
             clearInterval(this.intervalId);
         }
-        this.clearStage();  // 画面を消す
-        this.drawBlock();   // ブロックの描画
+        //this.clearStage();  // 画面を消す
+        this.drawStageBlock();   // ブロックの描画
         //▽next描画用　2023/06/25追加　tak-4649
         this.drawNextBlock();
         //△next描画用　2023/06/25追加　tak-4649
@@ -170,7 +173,7 @@ class Tetris {
                     }
                 }
                 this.clearStage();
-                this.drawBlock();
+                this.drawStageBlock();
                 break;
             case 'ArrowDown':
                 this.moveDown();
@@ -181,13 +184,46 @@ class Tetris {
             case 'ArrowRight':
                 this.moveRight();
                 break;
+            //▽hold描画用　2023/07/08作成　tak-4649
+            case 'Escape':
+                console.log(this.hasHoldBlock);
+                if(this.hasHoldBlock){
+                    var i = this.holdblockType;
+                    this.holdblockType = this.blockType;
+                    this.blockType = i;
+                    for(let i = 0; i < this.copyblocks.length; i++) {
+                        //空の2次元配列
+                        this.copyblocks[i] = new Array(this.blocks[this.blockType].shape[i].length);
+                        //コピーする
+                        for(let j = 0; j < this.copyblocks[i].length ; j++) {
+                            this.copyblocks[i][j] = this.blocks[this.blockType].shape[i][j];
+                        };
+                    };
+                    this.clearStage();  
+                    this.drawStageBlock();   
+                    this.drawHoldtBlock();
+                    this.hasHoldBlock = true;
+                    console.log(this.holdblockType);
+                }else{
+                    this.holdblockType = this.blockType;
+                    this.hasActiveBlock = false;
+                    this.hasHoldBlock = true;
+                    this.clearStage(); 
+                    this.drawHoldtBlock();
+                    this.hasHoldBlock = true;
+                    console.log(this.holdblockType);
+                }
+                break;
+                //バグを直すためには描画開始フラグを作ってフラグがフォルスの時に移動を許容しない
+
+            //△hold描画用　2023/07/08作成　tak-4649
         }
     }
 
     moveDown() {
         this.fall()
         this.clearStage();
-        this.drawBlock();
+        this.drawStageBlock();
     }
 
     moveRight() {
@@ -196,7 +232,7 @@ class Tetris {
             this.blockX--;
         }
         this.clearStage();
-        this.drawBlock();
+        this.drawStageBlock();
     }
 
     moveLeft() {
@@ -205,7 +241,7 @@ class Tetris {
             this.blockX++;
         }
         this.clearStage();
-        this.drawBlock();
+        this.drawStageBlock();
     }
 
     createBlock() {
@@ -255,7 +291,7 @@ class Tetris {
             this.isLanding = true;
         }
         this.clearStage();
-        this.drawBlock();
+        this.drawStageBlock();
     }
 
     isCollided(minoType) {
@@ -279,10 +315,10 @@ class Tetris {
         const canvas = document.getElementById('stage');
         const context = canvas.getContext('2d');
         context.clearRect(0, 0, canvas.width, canvas.height);
-        this.drawBlock(this.stage);
+        this.drawStageBlock(this.stage);
     }
 
-    drawBlock(stage) {
+    drawStageBlock(stage) {
         const canvas = document.getElementById('stage');
         if (stage === undefined) {
             // 引数なしの時の処理
@@ -319,6 +355,37 @@ class Tetris {
         }
     }
     //△next描画用　2023/07/01修正　tak-4649
+    
+    //▽hold描画用　2023/07/08作成　tak-4649
+    drawHoldtBlock(){
+        const canvas = document.getElementById('hold');
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        if(!this.hasHoldBlock){
+            this.holdblockType = this.blockType;
+        }
+        
+        //コピー先の配列を作る（shape数分の大きさにする,1次元配列）
+        this.holdblocks = new Array(this.blocks[this.holdblockType].shape.length);
+        //要素の[x, y]の数だけ新しい配列を作って2次元配列にする
+        for(let i = 0; i < this.holdblocks.length; i++) {
+            //空の2次元配列
+            this.holdblocks[i] = new Array(this.blocks[this.holdblockType].shape[i].length);
+            //コピーする
+            for(let j = 0; j < this.holdblocks[i].length ; j++) {
+                this.holdblocks[i][j] = this.blocks[this.holdblockType].shape[i][j];
+            };
+        };
+
+        //描画処理
+        for (let i = 0; i < this.holdblocks.length; i++) {
+            let displacementX = this.holdblocks[i][0];
+            let displacementY = this.holdblocks[i][1];
+            this.drawCell(canvas,1 + displacementX, 1 + displacementY, this.blocks[this.holdblockType].color);
+        }
+    }
+    //△hold描画用　2023/07/08作成　tak-4649
 
     drawCell(canvas, x, y, rgb) {
         const context = canvas.getContext('2d');
