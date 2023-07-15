@@ -68,7 +68,7 @@ class Tetris {
             //Lミノ
             {
                 shape: [
-                    [0,1], [0, 0], [1, 0], [2, 0]
+                    [0, 1], [0, 0], [1, 0], [2, 0]
                 ],
                 center: [1.0, 1.0],
                 color: 'rgb(255, 165, 0)',
@@ -184,39 +184,25 @@ class Tetris {
             case 'ArrowRight':
                 this.moveRight();
                 break;
-            //▽hold描画用　2023/07/08作成　tak-4649
+            //▽hold描画用　2023/07/15修正　tak-4649
             case 'Escape':
-                console.log(this.hasHoldBlock);
-                if(this.hasHoldBlock){
+                if (this.hasHoldBlock) {
                     var i = this.holdblockType;
                     this.holdblockType = this.blockType;
                     this.blockType = i;
-                    for(let i = 0; i < this.copyblocks.length; i++) {
-                        //空の2次元配列
-                        this.copyblocks[i] = new Array(this.blocks[this.blockType].shape[i].length);
-                        //コピーする
-                        for(let j = 0; j < this.copyblocks[i].length ; j++) {
-                            this.copyblocks[i][j] = this.blocks[this.blockType].shape[i][j];
-                        };
-                    };
-                    this.clearStage();  
-                    this.drawStageBlock();   
+                    this.copyBlocks(this.blockType, this.copyblocks);
+                    this.clearStage();
+                    this.drawStageBlock();
                     this.drawHoldtBlock();
-                    this.hasHoldBlock = true;
-                    console.log(this.holdblockType);
-                }else{
+                } else {
                     this.holdblockType = this.blockType;
                     this.hasActiveBlock = false;
                     this.hasHoldBlock = true;
-                    this.clearStage(); 
+                    this.clearStage();
                     this.drawHoldtBlock();
-                    this.hasHoldBlock = true;
-                    console.log(this.holdblockType);
                 }
                 break;
-                //バグを直すためには描画開始フラグを作ってフラグがフォルスの時に移動を許容しない
-
-            //△hold描画用　2023/07/08作成　tak-4649
+            //△hold描画用　2023/07/15修正　tak-4649
         }
     }
 
@@ -249,40 +235,49 @@ class Tetris {
         this.blockX = this.widthCellCount / 2 - 1;  // X座標
         this.blockY = -2;                            // Y座標
         //▽next描画用　2023/06/25追加　tak-4649
-        if(this.nextblockType === undefined){
+        if (this.nextblockType === undefined) {
             this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
             this.nextblockType = new Array(this.nextBlockCount);
-            for (let i = 0; i < this.nextBlockCount; i++){
+            for (let i = 0; i < this.nextBlockCount; i++) {
                 this.nextblockType[i] = Math.floor(Math.random() * this.blocks.length);
             }
-        }else{
+        } else {
             this.blockType = this.nextblockType[0];
-            for (let i = 0; i < this.nextBlockCount - 1; i++){
+            for (let i = 0; i < this.nextBlockCount - 1; i++) {
                 this.nextblockType[i] = this.nextblockType[i + 1];
             }
             this.nextblockType[this.nextBlockCount - 1] = Math.floor(Math.random() * this.blocks.length);
-        }        
+        }
         //△next描画用　2023/06/25追加　tak-4649
         this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
 
         //コピー先の配列を作る（shape数分の大きさにする,1次元配列）
         this.copyblocks = new Array(this.blocks[this.blockType].shape.length);
-        //要素の[x, y]の数だけ新しい配列を作って2次元配列にする
-        for(let i = 0; i < this.copyblocks.length; i++) {
-            //空の2次元配列
-            this.copyblocks[i] = new Array(this.blocks[this.blockType].shape[i].length);
-            //コピーする
-            for(let j = 0; j < this.copyblocks[i].length ; j++) {
-                this.copyblocks[i][j] = this.blocks[this.blockType].shape[i][j];
-            };
-        };
+        this.copyBlocks(this.blockType, this.copyblocks);
+
+        //1マス下に移動してゲームオーバー判定
         this.blockY++
         if (this.isCollided(this.blockType)) {
             this.isGameOver = true;
         }
         this.blockY--
+
         this.hasActiveBlock = true;                 // 動かせるブロックが存在するか否か
     }
+
+    //▽リファクタリング　2023/07/15追加　tak-4649
+    copyBlocks(blocktype, blocks) {
+        // //要素の[x, y]の数だけ新しい配列を作って2次元配列にする
+        for (let i = 0; i < blocks.length; i++) {
+            //空の2次元配列
+            blocks[i] = new Array(this.blocks[blocktype].shape[i].length);
+            //コピーする
+            for (let j = 0; j < blocks[i].length; j++) {
+                blocks[i][j] = this.blocks[blocktype].shape[i][j];
+            };
+        };
+    }
+    //△リファクタリング　2023/07/15追加　tak-4649
 
     fall() {
         this.blockY++;
@@ -341,48 +336,38 @@ class Tetris {
     }
 
     //▽next描画用　2023/07/01修正　tak-4649
-    drawNextBlock(){
+    drawNextBlock() {
         const canvas = document.getElementById('next');
         const context = canvas.getContext('2d');
         context.clearRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < this.nextblockType.length; i++ ){
+        for (let i = 0; i < this.nextblockType.length; i++) {
             var blockShape = this.blocks[this.nextblockType[i]].shape;
             for (let j = 0; j < blockShape.length; j++) {
                 let displacementX = blockShape[j][0];
                 let displacementY = blockShape[j][1];
-                this.drawCell(canvas,1 + displacementX, 1 + i * 3 + displacementY, this.blocks[this.nextblockType[i]].color);
+                this.drawCell(canvas, 1 + displacementX, 1 + i * 3 + displacementY, this.blocks[this.nextblockType[i]].color);
             }
         }
     }
     //△next描画用　2023/07/01修正　tak-4649
-    
+
     //▽hold描画用　2023/07/08作成　tak-4649
-    drawHoldtBlock(){
+    drawHoldtBlock() {
         const canvas = document.getElementById('hold');
         const context = canvas.getContext('2d');
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        if(!this.hasHoldBlock){
+        if (!this.hasHoldBlock) {
             this.holdblockType = this.blockType;
         }
-        
-        //コピー先の配列を作る（shape数分の大きさにする,1次元配列）
         this.holdblocks = new Array(this.blocks[this.holdblockType].shape.length);
-        //要素の[x, y]の数だけ新しい配列を作って2次元配列にする
-        for(let i = 0; i < this.holdblocks.length; i++) {
-            //空の2次元配列
-            this.holdblocks[i] = new Array(this.blocks[this.holdblockType].shape[i].length);
-            //コピーする
-            for(let j = 0; j < this.holdblocks[i].length ; j++) {
-                this.holdblocks[i][j] = this.blocks[this.holdblockType].shape[i][j];
-            };
-        };
+        this.copyBlocks(this.holdblockType, this.holdblocks);
 
         //描画処理
         for (let i = 0; i < this.holdblocks.length; i++) {
             let displacementX = this.holdblocks[i][0];
             let displacementY = this.holdblocks[i][1];
-            this.drawCell(canvas,1 + displacementX, 1 + displacementY, this.blocks[this.holdblockType].color);
+            this.drawCell(canvas, 1 + displacementX, 1 + displacementY, this.blocks[this.holdblockType].color);
         }
     }
     //△hold描画用　2023/07/08作成　tak-4649
