@@ -9,11 +9,6 @@ class Tetris {
         this.cellHeightPixel = this.heightPixel / this.heightCellCount;
         this.cellPixel = (this.cellWidthPixel > this.cellHeightPixel) ? this.cellHeightPixel : this.cellWidthPixel;
 
-        this.stage = new Array(this.widthCellCount);
-        for (let i = 0; i < this.widthCellCount; i++) {
-            this.stage[i] = new Array(this.heightCellCount).fill(null);
-        }
-
         //▽next描画用　2023/07/01修正　tak-4649
         this.nextBlockCount = 4;
         this.blocks = [//yeahaammmm(つのだ☆ひろ_ダイヤモンド☆ユカイ)mmmmmmaaaaaaaneko:)
@@ -76,6 +71,21 @@ class Tetris {
         ];
         //△next描画用　2023/07/01修正　tak-4649
 
+        for (let block of this.blocks) {
+            let x_array = block.shape.map(xy => xy[0]);
+            let y_array = block.shape.map(xy => xy[1]);
+            block.width = Math.max(...x_array) - Math.min(...x_array) + 1;
+            block.height = Math.max(...y_array) - Math.min(...y_array) + 1;
+        }
+        const maxMinoWidth = Math.max(...this.blocks.map(block => block.width));
+        const maxMinoHeight = Math.max(...this.blocks.map(block => block.height));
+        this.invisibleHeightCellCount = Math.max(maxMinoWidth, maxMinoHeight);
+
+        this.stage = new Array(this.widthCellCount);
+        for (let i = 0; i < this.widthCellCount; i++) {
+            this.stage[i] = new Array(this.heightCellCount + this.invisibleHeightCellCount).fill(null);
+        }
+
         this.fallSpeed = 500;
         this.count = 0;
 
@@ -134,9 +144,9 @@ class Tetris {
     }
 
     deleteLines() {
-        let deleteFlags = new Array(this.heightCellCount);
+        let deleteFlags = new Array(this.invisibleHeightCellCount + this.heightCellCount);
         let deleteLineCount = 0;
-        for (let y = 0; y < this.heightCellCount; y++) {
+        for (let y = this.invisibleHeightCellCount; y < this.invisibleHeightCellCount + this.heightCellCount; y++) {
             // 第y行が埋まっているか判定
             let x;
             for (x = 0; x < this.widthCellCount; x++) {
@@ -148,7 +158,7 @@ class Tetris {
             deleteFlags[y] = (x == this.widthCellCount);
         }
 
-        for (let y = 0; y < this.heightCellCount; y++) {
+        for (let y = 0; y < this.invisibleHeightCellCount + this.heightCellCount; y++) {
             if (deleteFlags[y]) {
                 // 第y行が埋まっているときの処理
                 for (let x = 0; x < this.widthCellCount; x++) {
@@ -233,7 +243,7 @@ class Tetris {
     createBlock() {
         // ブロックの初期設定
         this.blockX = this.widthCellCount / 2 - 1;  // X座標
-        this.blockY = -2;                            // Y座標
+        this.blockY = -2 + this.invisibleHeightCellCount;   // Y座標
         //▽next描画用　2023/06/25追加　tak-4649
         if (this.nextblockType === undefined) {
             this.blockType = Math.floor(Math.random() * this.blocks.length);    // ブロックの種類
@@ -297,7 +307,7 @@ class Tetris {
             if (
                 this.blockX + this.copyblocks[i][0] < 0
                 || this.blockX + this.copyblocks[i][0] >= this.widthCellCount
-                || this.blockY + this.copyblocks[i][1] >= this.heightCellCount
+                || this.blockY + this.copyblocks[i][1] >= (this.invisibleHeightCellCount + this.heightCellCount)
                 || this.stage[this.blockX + this.copyblocks[i][0]][this.blockY + this.copyblocks[i][1]] !== null
             ) {
                 return true;
@@ -321,14 +331,14 @@ class Tetris {
             for (let i = 0; i < blockShape.length; i++) {
                 let displacementX = blockShape[i][0];
                 let displacementY = blockShape[i][1];
-                this.drawCell(canvas, this.blockX + displacementX, this.blockY + displacementY, this.blocks[this.blockType].color);
+                this.drawCell(canvas, this.blockX + displacementX, this.blockY + displacementY - this.invisibleHeightCellCount, this.blocks[this.blockType].color);
             }
         } else {
             // 引数を指定したときの処理
             for (let x = 0; x < this.widthCellCount; x++) {
-                for (let y = 0; y < this.heightCellCount; y++) {
+                for (let y = this.invisibleHeightCellCount; y < this.invisibleHeightCellCount + this.heightCellCount; y++) {
                     if (this.stage[x][y] !== null) {
-                        this.drawCell(canvas, x, y, this.blocks[this.stage[x][y]].color);
+                        this.drawCell(canvas, x, y - this.invisibleHeightCellCount, this.blocks[this.stage[x][y]].color);
                     }
                 }
             }
